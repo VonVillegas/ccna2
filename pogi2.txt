@@ -1,0 +1,79 @@
+64e9.50ca.747e
+ ccd8.c1fb.0e8d
+
+
+coreTaas
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCav3sE0BEdzqb+bXcflDY39PWcmPg6i5BLMEDcfHzS
+84swOmsCKfSCtYNBZk87qBN78jykmXQXTBb6xMYgEh58z7b63Wt8HyCvB7cBOsG4nu7sO4UV7XthLxED
+tebG0yZHitDi3YIALan1nA8nzJhNGks8g1KFnAwK/Xpu2S6CZgnjiW90fHXJPGyY6X/+HXBUOgDMPlp7
+SifrqM9SLpGqsYIXZloqT9X7KkemZu6AbD0bEhMkGDxkXnrgSP8TtXyyjAa1OhqXZ+xe50oCNh6zWy8K
+89AWSZ2pfm3LlhYC/o9jdQMWsvSuLPTh5wRIWAwghQMVV4LPDEbauZYivvCh
+
+ansible-playbook -i rivan_mkt.ini playbooks/deploy_32.yml
+
+conf t
+ ip domain lookup
+ ip name-server 8.8.8.8
+ end
+
+66.254.114.79
+64.98.135.95
+66.254.114.238
+
+conf t
+ ip access-list standard FWP1
+  deny 66.254.114.0 0.0.0.255
+  deny host 104.16.4.81
+  deny host 185.53.179.136
+  deny host 64.98.135.95
+  permit any
+ int gig 1
+  ip access-group FWP1 in
+  end
+
+conf t
+ no ip access-list extended FWP5
+ ip access-list extended FWP5
+ permit tcp Any host www.bet100.com eq 2000 log
+ permit tcp Any host www.bet100.com eq 5060 log
+ permit tcp Any host www.bet100.com eq 25 log
+ permit tcp Any host www.bet100.com eq 143 log
+ permit tcp Any host www.bet100.com eq 110 log
+ permit tcp Any host www.bet100.com eq 21 log
+ permit udp Any host www.bet100.com eq 69 log
+ permit udp Any host www.bet100.com eq 123 log
+ Int gi 1
+  ip access-group FWP5 in
+  end
+
+!@UTM-PH
+conf t
+ int g1
+  ip nat outside
+ int g3
+  ip nat inside
+ access-list 1 permit any
+ ip nat inside source list 1 int g1 overload
+ end
+
+sudo su
+hostname WEB1
+ifconfig eth0 10.11.11.101 netmask 255.255.255.224 up
+route add default gw 10.11.11.113
+ping 10.11.11.113
+
+sudo su
+hostname WEB2
+ifconfig eth0 10.11.11.102 netmask 255.255.255.224 up
+route add default gw 10.11.11.113
+ping 10.11.11.113
+
+conf t
+ ip nat inside source static tcp 10.11.11.101 22 208.8.8.105 8081
+ ip nat inside source static tcp 10.11.11.102 22 208.8.8.105 8090
+ end
+show ip nat translations
+
+10.11.11.101 22 > 208.8.8.105 8081
+10.11.11.102 22 > 208.8.8.105 8090
+
