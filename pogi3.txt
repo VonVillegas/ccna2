@@ -1,0 +1,171 @@
+****Gawa ng PuKey
+conf t
+ !hostname UTM-PH
+ ip domain name ccna.sec
+ crypto key generate rsa modulus 2048 label pukey exportable
+ ip ssh version 2
+ !
+ line vty 0 21
+  transport input all
+  login local
+  end
+
+
+
+!@CoreTaas
+conf t
+ no spanning-tree vlan 1-1000
+end
+
+!@CoreTaas, Corebaba
+conf t
+ spanning-tree vlan 1-1000
+end
+
+
+@C1/D1
+conf t
+ int range e0/0-3, e1/2-3
+ switchport trunk encaps dot1q
+ switchport mode trunk
+ switchport trunk allowed vlan all
+ switchport trunk native vlan 1
+ end
+sh int trunk
+
+@A1
+conf t
+ int range e0/1-3, e1/0
+ switchport trunk encaps dot1q
+ switchport mode trunk
+ switchport trunk allowed vlan all
+ switchport trunk native vlan 1
+ end
+sh int trunk
+
+@A2
+conf t
+ int range e0/0-3
+ switchport trunk encaps dot1q
+ switchport mode trunk
+ switchport trunk allowed vlan all
+ switchport trunk native vlan 1
+ end
+sh int trunk
+
+@C2
+conf t
+ int range e0/0-3, e1/2-3
+ switchport trunk encaps dot1q
+ switchport mode trunk
+ switchport trunk allowed vlan all
+ switchport trunk native vlan 1
+ end
+sh int trunk
+
+sudo su
+ > kali
+ yersinia - G
+----------------
+@c1
+conf t
+ int range e1/2-3
+  channel-group 12 mode active
+  channel-protocol lacp
+  end
+show int po12 | inc BW
+
+@c2 
+conf t
+ int range e1/2-3
+  channel-group 12 mode active
+  channel-protocol lacp
+  end
+show int po12 | inc BW
+----------------
+@A2
+conf t
+ int range e0/0,e0/3
+ channel-group 22 mode active
+  channel-protocol lacp
+  end
+show int po22 | inc BW
+
+@c2 
+conf t
+ int range e0/0,e0/3
+  channel-group 22 mode active
+  channel-protocol lacp
+  end
+show int po22 | inc BW
+------------------
+@A2
+conf t
+ int range e0/1-2
+ channel-group 20 mode active
+  channel-protocol lacp
+  end
+show int po20 | inc BW
+
+@c1
+conf t
+ int range e0/0,e0/3
+  channel-group 20 mode active
+  channel-protocol lacp
+  end
+show int po20 | inc BW
+-------------------
+@c1
+conf t
+ int range e0/1-2
+  channel-group 11 mode active
+  channel-protocol lacp
+  end
+show int po11 | inc BW
+
+@a1 
+conf t
+ int range e0/1-2
+  channel-group 11 mode active
+  channel-protocol lacp
+  end
+show int po11 | inc BW
+---------------------
+@A1
+conf t
+ int range e1/0,e0/3
+ channel-group 10 mode active
+  channel-protocol lacp
+  end
+show int po10 | inc BW
+
+@c2 
+conf t
+ int range e0/1-2
+  channel-group 10 mode active
+  channel-protocol lacp
+  end
+show int po10 | inc BW
+
+-----------------C1
+conf t
+ hostname C1-PLDT
+ !
+ track 1 int vlan 10 line-protocol
+ !
+ int vlan 1
+  standby 1 ip 10.2.1.69
+  standby 1 preempt
+  standby 1 Priority 150
+  standby 1 Track 1 decrement 60
+  end
+
+-----------------C2
+conf t
+ hostname C2-Converge
+ !
+ int vlan 1
+  standby 1 ip 10.2.1.69
+  standby 1 preempt
+  standby 1 Priority 100
+  end
